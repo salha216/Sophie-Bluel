@@ -1,31 +1,34 @@
-// Fonction asynchrone pour afficher la liste des travaux depuis l'API
-async function afficherTravaux() {
+// Fonction asynchrone pour récupérer les données depuis l'API
+async function worksAndcategories() {
   try {
-    const reponse = await fetch('http://localhost:5678/api/works');
-    const listeTravaux = await reponse.json();
-    console.log(listeTravaux);
+    const [travaux, categories] = await Promise.all ([
+      fetch('http://localhost:5678/api/works').then(response => response.json()),
+      fetch('http://localhost:5678/api/categories').then(response => response.json())
+    ]);
+    
+    console.log(travaux, categories)
 
-    afficherGalerie(listeTravaux); // Afficher toute la galerie par défaut
-    activerFiltres(listeTravaux); // Activer les filtres pour faire fonctionner les boutons
+    affichergalerie(travaux); 
+    afficherFiltres(categories);
+    activerFiltres(travaux);
 
   } catch (error) {
     console.error("Erreur lors de la récupération des travaux :", error);
   }
 }
+worksAndcategories (); 
 
-// 2eme Fonction pour afficher la liste de travaux dans la galerie mais sans interoger à chaque fois l'API
-function afficherGalerie(travaux) {
-  const portfolioSection = document.getElementById('portfolio');
+// Fonction pour afficher la galerie
+function affichergalerie(travaux) {
+  const section = document.getElementById('portfolio');
 
 // Supprimer l’ancienne galerie
-  const ancienneGalerie = portfolioSection.querySelector('.gallery');
-  if (ancienneGalerie) {
-    ancienneGalerie.remove();
-  }
+  section.querySelector('.gallery').remove();
 
 // Créer et placer les balises de la nouvelle galerie
-  const nouvelleGalerie = document.createElement('div');
-  nouvelleGalerie.classList.add('gallery');
+  const galerie = document.createElement('div');
+  galerie.classList.add('gallery');
+  galerie.id = "projets";
 
   travaux.forEach(travail => {
     const figure = document.createElement('figure');
@@ -33,33 +36,32 @@ function afficherGalerie(travaux) {
     const image = document.createElement('img');
     image.src = travail.imageUrl;
     image.alt = travail.title;
+    figure.appendChild(image);
 
     const figcaption = document.createElement('figcaption');
     figcaption.textContent = travail.title;
-
-    figure.appendChild(image);
     figure.appendChild(figcaption);
-    nouvelleGalerie.appendChild(figure);
+    
+    galerie.appendChild(figure);
   });
 
-  portfolioSection.appendChild(nouvelleGalerie);
+  section.appendChild(galerie);
 }
 
-// Fonction asynchrone pour afficher les catégories de filtres depuis l'API
-async function afficherFiltres() {
-  const reponse = await fetch('http://localhost:5678/api/categories');
-  const listeCategories = await reponse.json();
-  console.log(listeCategories);
+// Fonction asynchrone pour afficher les filtres
+function afficherFiltres(categories) {
+  // Ne pas créer filtres si administrateur connecté
+  const adminConnecte= localStorage.getItem('token');
+  if (adminConnecte) {
+    return;
+  }
+  
+  const section = document.getElementById("portfolio");
+  const gallery = section.querySelector(".gallery");
 
-// Création de la div filtres
-  const divFiltres = document.createElement('div');
-  divFiltres.id = 'filtres';
-
-  const sectionPortfolio = document.getElementById("portfolio");
-  const gallery = sectionPortfolio.querySelector(".gallery");
-  sectionPortfolio.insertBefore(divFiltres, gallery);
-
-  const conteneur = document.getElementById("filtres");
+  const conteneur = document.createElement('div');
+  conteneur.id = 'filtres';
+  section.insertBefore(conteneur, gallery);
 
 // Bouton Tous
   const boutonTous = document.createElement("button");
@@ -68,37 +70,29 @@ async function afficherFiltres() {
   conteneur.appendChild(boutonTous);
 
 // Boutons des catégories
-  listeCategories.forEach(categorie => {
+  categories.forEach(categorie => {
     const bouton = document.createElement('button');
-    const nomClasse = categorie.name
-      .replace(/\s+/g, '-')
-      .replace(/&/g, 'et');
-    bouton.classList.add(nomClasse);
+    bouton.classList.add('categorie');
     bouton.textContent = categorie.name;
     conteneur.appendChild(bouton);
-  });
+  });  
 }
 
 // Fonction pour activer les filtres
-function activerFiltres(listeTravaux) {
-  const boutons = document.querySelectorAll('#filtres button');
+function activerFiltres(travaux) {
+  document.querySelectorAll('#filtres button').forEach(bouton => {
+  bouton.addEventListener('click', () => {
+    const filtre = bouton.textContent;
+    let resultat;
+    if (filtre === 'Tous') {
+      resultat = travaux;
+    } else {
+      resultat = travaux.filter(function(travail) {
+        return travail.category.name === filtre;
+      });
+    }
 
-  boutons.forEach(bouton => {
-    bouton.addEventListener('click', () => {
-      const nomCategorie = bouton.textContent;
-
-      if (nomCategorie === 'Tous') {
-        afficherGalerie(listeTravaux); 
-      } else {
-        const travauxFiltres = listeTravaux.filter(travail =>
-          travail.category.name === nomCategorie
-        );
-        afficherGalerie(travauxFiltres);
-      }
-    });
-  });
+    affichergalerie(resultat);
+    })
+  })
 }
-
-// Appel des fonctions
-afficherFiltres();
-afficherTravaux();
