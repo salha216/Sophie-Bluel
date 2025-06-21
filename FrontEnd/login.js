@@ -35,6 +35,14 @@ function afficherInterfaceAdmin() {
     adminBar.appendChild(iconBar);
     adminBar.appendChild(textBar);
     document.body.prepend(adminBar);
+
+    adminBar.addEventListener('click', () => {
+    const modale = document.getElementById('modale');
+    if (modale) {
+      modale.style.display = 'flex';
+      chargerGalerieModale();
+    }
+  });
   }
 
   // Supprimer les filtres s'ils existent
@@ -98,7 +106,7 @@ function connexionAdmin() {
   });
 }
 
-// Script principal déclenché au chargement
+// Gérer les problèmes d'affichage 
 document.addEventListener('DOMContentLoaded', () => {
   const loginBtn = document.getElementById('login-btn');
   const token = localStorage.getItem('token');
@@ -111,7 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loginBtn.textContent = 'login';
     loginBtn.style.cursor = 'pointer';
 
-    // Clic sur login → charger page login.html
     loginBtn.addEventListener('click', (e) => {
       e.preventDefault();
       chargerPageLogin();
