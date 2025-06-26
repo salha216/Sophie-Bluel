@@ -1,28 +1,33 @@
+// AFFICHER FILTRES ET GALERIE DEPUIS L'API
 
-let allTravaux = [];
+let allWorks = [];
 let allCategories = [];
 
-async function worksAndcategories() {
-  try {
-    const [travaux, categories] = await Promise.all([
-      fetch('http://localhost:5678/api/works').then(response => response.json()),
-      fetch('http://localhost:5678/api/categories').then(response => response.json())
-    ]);
+async function fetchWorks() {
+  if (allWorks.length) return allWorks; 
+  const response = await fetch('http://localhost:5678/api/works');
+  allWorks = await response.json();
+  return allWorks;
+}
 
-    allTravaux = travaux;
-    allCategories = categories;
+async function fetchCategories() {
+  if (allCategories.length) return allCategories; 
+  const response = await fetch('http://localhost:5678/api/categories');
+  allCategories = await response.json();
+  return allCategories;
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const travaux = await fetchWorks();
+    const categories = await fetchCategories();
 
     affichergalerie(travaux); 
     afficherFiltres(categories);
     activerFiltres(travaux);
-
   } catch (error) {
-    console.error("Erreur lors de la récupération des travaux :", error);
+    console.error("Erreur lors du chargement initial :", error);
   }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  worksAndcategories(); 
 });
 
 function affichergalerie(travaux) {
@@ -62,7 +67,7 @@ function afficherFiltres(categories) {
   section.insertBefore(conteneur, gallery);
 
   const boutonTous = document.createElement("button");
-  boutonTous.classList.add('Tous');
+  boutonTous.className = 'Tous active-filter';
   boutonTous.textContent = "Tous";
   conteneur.appendChild(boutonTous);
 
@@ -75,9 +80,16 @@ function afficherFiltres(categories) {
 }
 
 function activerFiltres(travaux) {
-  document.querySelectorAll('#filtres button').forEach(bouton => {
+  const boutons = document.querySelectorAll('#filtres button');
+
+  boutons.forEach(bouton => {
     bouton.addEventListener('click', (e) => {
       e.preventDefault();
+
+      boutons.forEach(btn => btn.classList.remove('active-filter'));
+
+      bouton.classList.add('active-filter');
+
       const filtre = bouton.textContent;
       const resultat = filtre === 'Tous'
         ? travaux
@@ -87,7 +99,7 @@ function activerFiltres(travaux) {
   });
 }
 
-// ------------------- MODALE -------------------
+// MODALE
 const modale = document.getElementById('modale');
 
 const modaleContenu = document.createElement('div');
@@ -100,7 +112,7 @@ fermerModale.className ='fa-solid fa-xmark';
 modale.appendChild(modaleContenu);
 modale.appendChild(fermerModale);
 
-// Modale 1
+// CREATION MODALE 1
 const modale1 = document.createElement('div');
 modale1.id = 'modale1';
 
@@ -124,7 +136,7 @@ modale1.appendChild(lienAjoutPhoto);
 
 modale.appendChild(modale1);
 
-// Modale 2
+// CREATION MODALE 2
 const modale2 = document.createElement('div');
 modale2.id = 'modale2';
 
@@ -203,6 +215,8 @@ modaleContenu.appendChild(modale1);
 modaleContenu.appendChild(modale2);
 modale.appendChild(modaleContenu);
 
+
+// FONCTIONNEMENT MODALE 1
 const modifierLien = document.getElementById('modifier-projets');
 modifierLien.addEventListener('click', async (e) => {
   e.preventDefault();
@@ -210,7 +224,7 @@ modifierLien.addEventListener('click', async (e) => {
   modale2.style.display = 'none';
   modale1.style.display = 'block';
      
-  await worksAndcategories();   
+  await fetchWorks();   
   await chargerGalerieModale(); 
 });
 
@@ -225,7 +239,7 @@ retourModale.addEventListener('click', (e) => {
   modale1.style.display = 'block';
 });
 
-modale.addEventListener('click', () => {
+modale.addEventListener('click', (e) => {
   if (e.target === modale) {
     modale.style.display = 'none';
   }
@@ -233,10 +247,9 @@ modale.addEventListener('click', () => {
 
 async function chargerGalerieModale() {
   galerieModale.innerHTML = '';
-  const response = await fetch('http://localhost:5678/api/works');
-  const photos = await response.json();
+  const travaux = await fetchWorks();
 
-  photos.forEach(photo => {
+  travaux.forEach(photo => {
     const container = document.createElement('div');
     container.className = 'photo-container';
 
@@ -271,15 +284,16 @@ async function supprimerPhoto(id) {
   });
 
   if (response.ok) {
-  const MajTravaux = await fetch('http://localhost:5678/api/works').then(res => res.json());
-  affichergalerie(MajTravaux);
+    allWorks = []; // Vider le cache
+    const travaux = await fetchWorks();
+    affichergalerie(travaux);
     await chargerGalerieModale();
   } else {
     alert('Erreur lors de la suppression');
   }
 }
 
-// Redirection modale vers ajout photo
+// REDIRECTION MODALE 2
 lienAjoutPhoto.addEventListener('click', (e) => {
   e.preventDefault();
   modale1.style.display = 'none';
@@ -287,9 +301,9 @@ lienAjoutPhoto.addEventListener('click', (e) => {
   CategorieSelect();
 });
 
+// CREATION LISTE DEROULANTE CATEGORIES
 async function CategorieSelect() {
-  const response = await fetch('http://localhost:5678/api/categories');
-  const categories = await response.json();
+  const categories = await fetchCategories();
 
   selectCat.innerHTML = '<option value=""></option>';
   categories.forEach(cat => {
@@ -301,12 +315,16 @@ async function CategorieSelect() {
 }
 
 // AJOUT D'UNE NOUVELLE PHOTO
-const validerBtn = document.getElementById('valider-btn');
-
 let selectedImageFile = null;
 
 inputPhoto.addEventListener('change', function () {
   const file = this.files[0];
+
+   if (file && file.size > 4 * 1024 * 1024) {
+    alert("Image trop lourde (max 4 Mo)");
+    this.value = "";
+    return;
+  }
 
   if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {
     const reader = new FileReader();
@@ -336,13 +354,14 @@ function verifierChamps() {
 
   if (imageOK && titreOK && categorieOK) {
     validerPhoto.style.backgroundColor = '#1D6154';
-  } return; 
+  }
 }
 
 inputPhoto.addEventListener('change', verifierChamps);
 titreInput.addEventListener('input', verifierChamps);
 categorieSelect.addEventListener('change', verifierChamps);
 
+let timeoutMsg;
 validerPhoto.addEventListener('click', async (e) => {
   e.preventDefault();
 
@@ -350,7 +369,6 @@ validerPhoto.addEventListener('click', async (e) => {
   const categorie = categorieSelect.value;
   const token = localStorage.getItem('token');
 
-  let timeoutMsg;
   if (!selectedImageFile || !titre || !categorie) {
   const msgChampManquant = document.getElementById('message-formulaire');
   msgChampManquant.textContent = 'Veuillez remplir tous les champs.';
@@ -385,11 +403,24 @@ validerPhoto.addEventListener('click', async (e) => {
       selectedImageFile = null;
       titreInput.value = '';
       categorieSelect.value = '';
-      addPhotoDiv.innerHTML = '<i class="fa-regular fa-image"></i><p>+ Ajouter photo</p>';
+      addPhotoDiv.innerHTML = '';
       addPhotoDiv.style.padding = '';
 
+      addPhotoDiv.appendChild(iconImage);
+      addPhotoDiv.appendChild(inputPhoto);
+      addPhotoDiv.appendChild(labelPhoto);
+      addPhotoDiv.appendChild(pFormat);
+
+      allWorks = [];
+      allCategories = [];
+
+      const travaux = await fetchWorks();
+      const categories = await fetchCategories();
+
+      affichergalerie(travaux);
+      afficherFiltres(categories);
+      activerFiltres(travaux);
       await chargerGalerieModale();
-      await worksAndcategories();
 
       modale.style.display = 'none';
     } else {

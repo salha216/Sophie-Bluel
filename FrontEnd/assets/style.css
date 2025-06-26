@@ -193,27 +193,22 @@ footer nav ul {
 	padding-bottom: 60px;
 }
 
-.Tous {
-	background-color: #1D6154;
-	color: #FFFFFF;
-	font-weight: 700;
-	font-size : 16px;
-	text-align: center;
-}
-
 .Tous, .categorie {
-	border-radius: 60px;
-	border: 1px solid #1D6154;
-	font-family: 'Syne';
-	padding : 10px ;
+  border-radius: 60px;
+  border: 1px solid #1D6154;
+  font-family: 'Syne';
+  padding: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 16px;
+  text-align: center;
+  background-color: white;
+  color: #1D6154;
 }
 
-.categorie {
-	color :#1D6154;
-	font-weight: 700;
-	font-size : 16px;
-	text-align: center;
-	background-color: white;
+button.active-filter {
+  background-color: #1D6154;
+  color: #FFFFFF;
 }
 
 #login-btn.active {

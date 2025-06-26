@@ -21,7 +21,7 @@ function afficherInterfaceAdmin() {
   loginBtn.textContent = 'logout';
   loginBtn.style.cursor = 'pointer';
 
-  // Créer et insérer la barre admin si elle n'existe pas
+  // Créer la barre admin
   if (!document.getElementById('admin-bar')) {
     const adminBar = document.createElement('div');
     adminBar.id = 'admin-bar';
@@ -45,16 +45,16 @@ function afficherInterfaceAdmin() {
   });
   }
 
-  // Supprimer les filtres s'ils existent
+  // Supprimer les filtres
   const filtres = document.getElementById('filtres');
   if (filtres) {
     filtres.remove();
   }
 
-  // Rendre visible tous les éléments avec .afficher-bouton
+  // Rendre visible le bouton "modifier"
   const boutonsModifier = document.querySelectorAll('.afficher-bouton');
   boutonsModifier.forEach(btn => {
-    btn.style.display = 'flex'; // ou 'block' selon le CSS
+    btn.style.display = 'flex';
   });
 
   // Gérer le bouton logout
@@ -65,7 +65,7 @@ function afficherInterfaceAdmin() {
   });
 }
 
-// Fonction de gestion de la soumission du formulaire de login
+// Gestion du formulaire login
 function connexionAdmin() {
   const loginForm = document.getElementById('login-form');
 
