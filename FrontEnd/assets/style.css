@@ -135,7 +135,7 @@ li:hover {
 
 .gallery img {
 	width: 100%;
-
+	height: 490px;
 }
 #contact {
 	width: 50%;
@@ -253,7 +253,7 @@ footer nav ul {
 	color : #FFFFFF;
 	font-family: 'Syne';
 	border : none;
-	margin: 10% 27% 10% 27%; 
+	margin: 10% 26% 5%; 
 }
 
 #login-form a {
@@ -337,19 +337,19 @@ i.fa-solid.fa-pen-to-square {
 
 #retour-modale {
     font-size: 21px;
-	padding-top: 10px;
 	cursor: pointer;
 }
 
 h3 {
 	font-size: 26px;
-	padding: 20px;
+	padding-bottom: 20px;
 	text-align: center;
 }
 
 .photo {
-  width: 76px;
+  width: 69px;
   margin: 10px;
+  height: 101px;
 }
 
 .photo-container {
@@ -370,19 +370,26 @@ h3 {
   cursor: pointer;
 }
 
+.fa-solid.fa-trash-can {
+	color: white;
+	background-color: black;
+	padding: 4px;
+    border-radius: 3px;
+}
+
 .lien-ajout-photo {
 	font-size: 14px;
     display: flex;
     border-radius: 60px;
     height: 36px;
-    width: 237px;
+    width: 50%;
     background-color: #1D6154;
     border: none;
     color: white;
     font-family: 'syne';
     justify-content: center;
     align-items: center;
-	margin: 10% 26% 0;
+	margin: 5% 26% 0;
 	cursor: pointer;
 }
 
@@ -399,14 +406,14 @@ hr {
     display: flex;
     flex-direction: column;
     align-items: center;
-	padding: 20px;
+	padding: 10px;
 	border-radius: 3px;
-	margin-bottom: 25px;
+	margin-bottom: 15px;
 }
 
 i.far.fa-image {
     color: #B9C5CC;
-    font-size: 76px;
+    font-size: 65px;
 }
 
 .custom-file {
@@ -441,12 +448,13 @@ i.far.fa-image {
 	border: none;
 	border-radius: 60px;
     height: 36px;
-    margin: 20px 26%;
-    width: 237px;
+    margin: 5% 15%;
+    width: 70%;
     color: #FFFFFF;
     background-color: #A7A7A7;
     font-family: 'Syne';
     font-size: 14px;
+	cursor: pointer;
 }
 
 .new-img {

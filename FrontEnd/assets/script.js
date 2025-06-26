@@ -1,3 +1,4 @@
+
 let allTravaux = [];
 let allCategories = [];
 
@@ -23,8 +24,6 @@ async function worksAndcategories() {
 document.addEventListener('DOMContentLoaded', () => {
   worksAndcategories(); 
 });
-
-// ------------------- FONCTIONS GÉNÉRALES -------------------
 
 function affichergalerie(travaux) {
   const section = document.getElementById('portfolio');
@@ -77,7 +76,8 @@ function afficherFiltres(categories) {
 
 function activerFiltres(travaux) {
   document.querySelectorAll('#filtres button').forEach(bouton => {
-    bouton.addEventListener('click', () => {
+    bouton.addEventListener('click', (e) => {
+      e.preventDefault();
       const filtre = bouton.textContent;
       const resultat = filtre === 'Tous'
         ? travaux
@@ -88,35 +88,145 @@ function activerFiltres(travaux) {
 }
 
 // ------------------- MODALE -------------------
+const modale = document.getElementById('modale');
+
+const modaleContenu = document.createElement('div');
+modaleContenu.className = 'modale-contenu';
+
+const fermerModale = document.createElement('i');
+fermerModale.id = 'fermer-modale';
+fermerModale.className ='fa-solid fa-xmark';
+
+modale.appendChild(modaleContenu);
+modale.appendChild(fermerModale);
+
+// Modale 1
+const modale1 = document.createElement('div');
+modale1.id = 'modale1';
+
+const h3Modale = document.createElement('h3');
+h3Modale.textContent = 'Galerie photo';
+
+const galerieModale = document.createElement('span');
+galerieModale.id = 'galerie-modale';
+
+const hr1 = document.createElement('hr');
+
+const lienAjoutPhoto = document.createElement('button');
+lienAjoutPhoto.type = 'submit';
+lienAjoutPhoto.className = 'lien-ajout-photo';
+lienAjoutPhoto.textContent = 'Ajouter une photo';
+
+modale1.appendChild(h3Modale);
+modale1.appendChild(galerieModale);
+modale1.appendChild(hr1);
+modale1.appendChild(lienAjoutPhoto);
+
+modale.appendChild(modale1);
+
+// Modale 2
+const modale2 = document.createElement('div');
+modale2.id = 'modale2';
+
+const retourModale = document.createElement('i');
+retourModale.className = 'fa-solid fa-arrow-left';
+retourModale.id = 'retour-modale';
+
+const h3Modale2 = document.createElement('h3');
+h3Modale2.textContent = 'Ajout photo';
+
+const addPhotoDiv = document.createElement('div');
+addPhotoDiv.className = 'add-photo';
+
+const iconImage = document.createElement('i');
+iconImage.className = 'far fa-image';
+
+const inputPhoto = document.createElement('input');
+inputPhoto.type = 'file';
+inputPhoto.id = 'input-photo';
+inputPhoto.accept = 'image/*';
+inputPhoto.required = true;
+inputPhoto.hidden = true;
+
+const labelPhoto = document.createElement('label');
+labelPhoto.htmlFor = 'input-photo';
+labelPhoto.className = 'custom-file';
+labelPhoto.textContent = '+ Ajouter photo';
+
+const pFormat = document.createElement('p');
+pFormat.textContent = 'jpg, png : 4mo max';
+
+addPhotoDiv.appendChild(iconImage);
+addPhotoDiv.appendChild(inputPhoto);
+addPhotoDiv.appendChild(labelPhoto);
+addPhotoDiv.appendChild(pFormat);
+
+const labelTitre = document.createElement('label');
+labelTitre.htmlFor = 'titre';
+labelTitre.textContent = 'Titre';
+
+const inputTitre = document.createElement('input');
+inputTitre.type = 'text';
+inputTitre.id = 'titre';
+
+const labelCat = document.createElement('label');
+labelCat.htmlFor = 'categorie';
+labelCat.textContent = 'Catégorie';
+
+const selectCat = document.createElement('select');
+selectCat.id = 'categorie';
+
+const hr2 = document.createElement('hr');
+
+const btnValider = document.createElement('button');
+btnValider.type = 'submit';
+btnValider.id = 'valider-photo';
+btnValider.textContent = 'Valider';
+
+const msgChampManquant = document.createElement('div');
+msgChampManquant.id = 'message-formulaire';
+msgChampManquant.style.display = 'none';
+
+modale2.appendChild(retourModale);
+modale2.appendChild(h3Modale2);
+modale2.appendChild(addPhotoDiv);
+modale2.appendChild(labelTitre);
+modale2.appendChild(inputTitre);
+modale2.appendChild(labelCat);
+modale2.appendChild(selectCat);
+modale2.appendChild(hr2);
+modale2.appendChild(btnValider);
+modale2.appendChild(msgChampManquant);
+
+modaleContenu.appendChild(fermerModale);
+modaleContenu.appendChild(modale1);
+modaleContenu.appendChild(modale2);
+modale.appendChild(modaleContenu);
 
 const modifierLien = document.getElementById('modifier-projets');
-const modale = document.getElementById('modale');
-const fermerModale = document.getElementById('fermer-modale');
-const galerieModale = document.getElementById('galerie-modale');
-const lienAjoutPhoto = document.querySelector('.lien-ajout-photo');
-const modale1 = document.getElementById('modale1');
-const modale2 = document.getElementById('modale2');
-const retourModale = document.getElementById('retour-modale');
-const selectCategorie = document.getElementById('categorie');
-
-modifierLien.addEventListener('click', (e) => {
+modifierLien.addEventListener('click', async (e) => {
   e.preventDefault();
   modale.style.display = 'flex';
   modale2.style.display = 'none';
-  chargerGalerieModale();
+  modale1.style.display = 'block';
+     
+  await worksAndcategories();   
+  await chargerGalerieModale(); 
 });
 
-fermerModale.addEventListener('click', () => {
+fermerModale.addEventListener('click', (e) => {
+  e.preventDefault();
   modale.style.display = 'none';
 });
 
-retourModale.addEventListener('click', () => {
+retourModale.addEventListener('click', (e) => {
+  e.preventDefault();
   modale2.style.display = 'none';
   modale1.style.display = 'block';
 });
 
-modale.addEventListener('click', (event) => {
-  if (event.target === modale) {
+modale.addEventListener('click', () => {
+  if (e.target === modale) {
     modale.style.display = 'none';
   }
 });
@@ -137,14 +247,12 @@ async function chargerGalerieModale() {
 
     const btnDelete = document.createElement('button');
     btnDelete.className = 'btn-delete';
-    const icon = document.createElement('img');
-    icon.src = 'corbeille.png';
-    icon.alt = 'supprimer-photo';
-    icon.className = 'icon-delete';
+    const icon = document.createElement('i');
+    icon.className = 'fa-solid fa-trash-can icon-delete';
 
     btnDelete.appendChild(icon);
-    btnDelete.addEventListener('click', (event) => {
-      event.preventDefault();
+    btnDelete.addEventListener('click', (e) => {
+      e.preventDefault();
       supprimerPhoto(photo.id);
     });
     
@@ -183,19 +291,16 @@ async function CategorieSelect() {
   const response = await fetch('http://localhost:5678/api/categories');
   const categories = await response.json();
 
-  selectCategorie.innerHTML = '<option value=""></option>';
+  selectCat.innerHTML = '<option value=""></option>';
   categories.forEach(cat => {
     const option = document.createElement('option');
     option.value = cat.id;
     option.textContent = cat.name;
-    selectCategorie.appendChild(option);
+    selectCat.appendChild(option);
   });
 }
 
 // AJOUT D'UNE NOUVELLE PHOTO
-
-const inputPhoto = document.getElementById('input-photo');
-const addPhotoDiv = document.querySelector('.add-photo');
 const validerBtn = document.getElementById('valider-btn');
 
 let selectedImageFile = null;
@@ -231,11 +336,7 @@ function verifierChamps() {
 
   if (imageOK && titreOK && categorieOK) {
     validerPhoto.style.backgroundColor = '#1D6154';
-    validerPhoto.disabled = false;
-  } else {
-    validerPhoto.style.backgroundColor = '';
-    validerPhoto.disabled = true;
-  }
+  } return; 
 }
 
 inputPhoto.addEventListener('change', verifierChamps);
@@ -249,8 +350,17 @@ validerPhoto.addEventListener('click', async (e) => {
   const categorie = categorieSelect.value;
   const token = localStorage.getItem('token');
 
+  let timeoutMsg;
   if (!selectedImageFile || !titre || !categorie) {
-    alert('Veuillez remplir tous les champs.');
+  const msgChampManquant = document.getElementById('message-formulaire');
+  msgChampManquant.textContent = 'Veuillez remplir tous les champs.';
+  msgChampManquant.style.color = 'red';
+  msgChampManquant.style.display = 'block'; 
+
+  clearTimeout(timeoutMsg);
+  timeoutMsg = setTimeout(() => {
+    msgChampManquant.style.display = 'none';
+  }, 2000);
     return;
   }
 

@@ -86,10 +86,16 @@ function connexionAdmin() {
 
       const data = await response.json();
 
+      let timeoutLogin;
       if (!response.ok) {
       const messageErreur = document.getElementById('erreur-login');
       messageErreur.textContent = "Erreur dans l'identifiant ou le mot de passe.";
       messageErreur.style.display = 'block';
+
+      clearTimeout(timeoutLogin);
+      timeoutLogin = setTimeout(() => {
+      messageErreur.style.display = 'none';
+      }, 2000);
       return;
       }
 
